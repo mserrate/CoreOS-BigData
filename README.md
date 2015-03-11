@@ -5,7 +5,7 @@ CoreOS VM instances should be called:
 * coreos2
 * coreos3
 
-Run empty VMs (3Gb RAM and 16Gb HDD for each) with CoreOS live ISO image (http://stable.release.core-os.net/amd64-usr/current/coreos_production_iso_image.iso), set temporarily root password through the VM console: ```sudo passwd```
+Run empty VMs (4Gb RAM and 20Gb HDD for each) with CoreOS live ISO image (http://stable.release.core-os.net/amd64-usr/current/coreos_production_iso_image.iso), set temporarily root password through the VM console: ```sudo passwd```
 
 First run of ```coreos_install``` will create ```coreos.inc``` file at current directory. ```coreos.inc``` file will contain new ETCD discovery ID and public key path.
 
