@@ -1,0 +1,18 @@
+[Unit]
+Description=zookeeper
+After=docker.service
+Requires=docker.service
+
+[Service]
+Environment=JVM_OPTS=-Xmx64m\s-Xms64M
+ExecStartPre=-/usr/bin/docker kill %p-%i
+ExecStartPre=-/usr/bin/docker rm %p-%i
+ExecStartPre=/usr/bin/docker pull endocode/%p
+ExecStart=/usr/bin/docker run --rm --name %p-%i -e JVMFLAGS=${JVM_OPTS} -e ZK_SERVER_NUMBER=%i --hostname %H --publish 2181:2181 --publish 2888:2888 --publish 3888:3888 endocode/%p
+ExecStop=/usr/bin/docker stop %p-%i
+TimeoutStartSec=900s
+
+[X-Fleet]
+Conflicts=%p@*.service
+#run zookeeper instance on corresponding host
+MachineMetadata=zookeeperid=%i
