@@ -109,7 +109,7 @@ fleetctl start storm-supervisor@{1..3}.service
 
 ###test kafka
 
-Run these command in devel-node container.
+Run these commands in devel-node container.
 
 Create topic
 
