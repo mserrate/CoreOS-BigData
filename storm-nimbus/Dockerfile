@@ -8,7 +8,7 @@ RUN /usr/bin/config-supervisord.sh drpc
 EXPOSE 6627
 # drpc.port
 EXPOSE 3772
-# drpc.invocations.port:
+# drpc.invocations.port
 EXPOSE 3773
 
 CMD /usr/bin/start-supervisor.sh
