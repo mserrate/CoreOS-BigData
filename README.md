@@ -35,14 +35,6 @@ CoreOS installation script set specific metadata to each coreos host:
 * coreos2: metadata: zookeeperid=2
 * coreos3: metadata: zookeeperid=3
 
-It corresponds to zoo.cfg config in container:
-
-```
-server.1=coreos1:2888:3888
-server.2=coreos2:2888:3888
-server.3=coreos3:2888:3888
-```
-
 This metadata will be used to run each zookeeper instance on corresponding coreos VM.
 
 ####download and unpack fleet binaries
