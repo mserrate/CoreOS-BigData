@@ -8,13 +8,10 @@ RUN apt-get install -y zookeeper
 RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ADD ./configuration.xsl /etc/zookeeper/conf/
-ADD ./environment /etc/zookeeper/conf/
-ADD ./log4j.properties /etc/zookeeper/conf/
-ADD ./zoo.cfg /etc/zookeeper/conf/
-ADD ./start.sh /
+RUN sed -i 's/ROLLINGFILE/CONSOLE/' /etc/zookeeper/conf/environment
+ADD start.sh /usr/local/bin/
 
-VOLUME ["/var/lib/zookeeper"]
+VOLUME /var/lib/zookeeper
 
 # Zookeeper client port
 EXPOSE 2181
@@ -23,4 +20,4 @@ EXPOSE 2888
 # Zookeeper leader (election) port
 EXPOSE 3888
 
-CMD ["/start.sh"]
+CMD ["/usr/local/bin/start.sh"]
