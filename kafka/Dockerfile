@@ -14,5 +14,5 @@ RUN tar xfz /tmp/kafka_2.10-0.8.2.0.tgz -C /opt
 VOLUME ["/kafka"]
 
 ENV KAFKA_HOME /opt/kafka_2.10-0.8.2.0
-ADD start-kafka.sh /usr/bin/start-kafka.sh
-CMD start-kafka.sh
+ADD start-kafka.sh /usr/local/bin/start-kafka.sh
+CMD ["/usr/local/bin/start-kafka.sh"]
