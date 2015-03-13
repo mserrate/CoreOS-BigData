@@ -15,4 +15,4 @@ sed -i -e "s/%zk%/$ZK_SED/g" $STORM_HOME/conf/storm.yaml
 sed -i -e "s/%nimbus%/$NIMBUS_HOST/g" $STORM_HOME/conf/storm.yaml
 echo "storm.local.hostname: $HOST_NAME" >> $STORM_HOME/conf/storm.yaml
 
-/bin/bash $@
+/bin/bash -c "$@"
