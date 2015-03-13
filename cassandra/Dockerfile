@@ -22,8 +22,7 @@ RUN ln -s -f /bin/true /usr/bin/chfn
 RUN apt-get install -y cassandra=2.0.12 dsc20=2.0.12-1
 
 # cleanup image
-RUN apt-get clean
-RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ENV CASSANDRA_CONFIG /etc/cassandra
 

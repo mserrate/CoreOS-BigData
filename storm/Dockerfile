@@ -8,8 +8,7 @@ RUN apt-get install -y tar openjdk-7-jre-headless wget
 RUN apt-get install -y python-setuptools python-virtualenv supervisor
 
 # cleanup image
-RUN apt-get clean
-RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN wget -q -O - http://mirror.dkd.de/apache/storm/apache-storm-0.9.3/apache-storm-0.9.3.tar.gz | tar -xzf - -C /opt
 

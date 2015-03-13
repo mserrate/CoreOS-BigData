@@ -21,8 +21,7 @@ WORKDIR /root
 RUN pip install pyleus
 
 # cleanup image
-RUN apt-get clean
-RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ADD start-shell.sh /usr/bin/start-shell.sh
 CMD /usr/bin/start-shell.sh
