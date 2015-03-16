@@ -97,7 +97,7 @@ fleetctl start storm-supervisor@{1..3}.service
 
 ##run development container inside coreos VM (storm, kafka, maven, scala, python, zookeeper, etc)
 
-```docker run --rm -ti -v /home/core/devel:/root/devel -e JVMFLAGS="-Xmx64m -Xms64M" -e KAFKA_ADVERTISED_PORT=9092 -e HOST_IP=`hostname -i` -e ZK=`hostname -i` -e BROKER_LIST=`fleetctl list-machines -no-legend=true -fields=ip | sed 's/$/:9092/' | tr '\n' ','` -e HOST_NAME=`hostname -i` -e NIMBUS_HOST="%NIMBUS_HOST%" -e ZK=`fleetctl list-machines -no-legend=true -fields=ip | tr '\n' ','` endocode/devel-node:0.9.2```
+```docker run --rm -ti -v /home/core/devel:/root/devel -e JVMFLAGS="-Xmx64m -Xms64M" -e KAFKA_ADVERTISED_PORT=9092 -e HOST_IP=`hostname -i` -e ZK=`hostname -i` -e BROKER_LIST=`fleetctl list-machines -no-legend=true -fields=ip | sed 's/$/:9092/' | tr '\n' ','` -e HOST_NAME=`hostname -i` -e NIMBUS_HOST="%NIMBUS_HOST%" -e ZK=`fleetctl list-machines -no-legend=true -fields=ip | tr '\n' ','` endocode/devel-node:0.9.2 bash```
 
 ###test kafka
 
@@ -159,7 +159,7 @@ endocode/devel-node:0.9.2 Docker container contains sample kafka-storm-cassandra
 * 
 
 ```
-docker run --rm -ti -v /home/core/devel:/root/devel -e JVMFLAGS="-Xmx64m -Xms64M" -e KAFKA_ADVERTISED_PORT=9092 -e HOST_IP=`hostname -i` -e ZK=`hostname -i` -e BROKER_LIST=`fleetctl list-machines -no-legend=true -fields=ip | sed 's/$/:9092/' | tr '\n' ','` -e HOST_NAME=`hostname -i` -e NIMBUS_HOST=`etcdctl get /storm-nimbus` -e ZK=`fleetctl list-machines -no-legend=true -fields=ip | tr '\n' ','` endocode/devel-node:0.9.2
+docker run --rm -ti -v /home/core/devel:/root/devel -e JVMFLAGS="-Xmx64m -Xms64M" -e KAFKA_ADVERTISED_PORT=9092 -e HOST_IP=`hostname -i` -e ZK=`hostname -i` -e BROKER_LIST=`fleetctl list-machines -no-legend=true -fields=ip | sed 's/$/:9092/' | tr '\n' ','` -e HOST_NAME=`hostname -i` -e NIMBUS_HOST=`etcdctl get /storm-nimbus` -e ZK=`fleetctl list-machines -no-legend=true -fields=ip | tr '\n' ','` endocode/devel-node:0.9.2 bash
 cd ~/kafka_cassandra_topology
 pyleus build
 pyleus submit -n $NIMBUS_HOST kafka-cassandra.jar
