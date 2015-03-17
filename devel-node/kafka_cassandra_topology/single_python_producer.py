@@ -15,7 +15,7 @@ class Producer(threading.Thread):
     daemon = True
 
     def run(self):
-        client = KafkaClient("coreos1:9092")
+        client = KafkaClient("172.17.8.101:9092")
         producer = SimpleProducer(client)
         global_counter = 0
 

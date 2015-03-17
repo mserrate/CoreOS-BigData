@@ -74,10 +74,7 @@ fleetctl start kafka@{1..3}.service
 
 ```
 fleetctl submit fleet/cassandra@.service
-fleetctl start cassandra@1.service
-# wait until first node is up and ready (Listening for thrift clients...)
-fleetctl start cassandra@2.service
-fleetctl start cassandra@3.service
+fleetctl start cassandra@{1..3}.service
 ```
 
 ##run storm cluster
@@ -85,7 +82,6 @@ fleetctl start cassandra@3.service
 ```
 fleetctl submit fleet/storm-nimbus.service
 fleetctl start storm-nimbus.service
-# wait until nimbus node is up and ready
 # start storm UI
 fleetctl submit fleet/storm-ui.service
 # storm-ui will listen on http://coreos1:8080
@@ -97,7 +93,7 @@ fleetctl start storm-supervisor@{1..3}.service
 
 ##run development container inside coreos VM (storm, kafka, maven, scala, python, zookeeper, etc)
 
-```docker run --rm -ti -v /home/core/devel:/root/devel -e JVMFLAGS="-Xmx64m -Xms64M" -e KAFKA_ADVERTISED_PORT=9092 -e HOST_IP=`hostname -i` -e ZK=`hostname -i` -e BROKER_LIST=`fleetctl list-machines -no-legend=true -fields=ip | sed 's/$/:9092/' | tr '\n' ','` -e HOST_NAME=`hostname -i` -e NIMBUS_HOST="%NIMBUS_HOST%" -e ZK=`fleetctl list-machines -no-legend=true -fields=ip | tr '\n' ','` endocode/devel-node:0.9.2 bash```
+```docker run --rm -ti -v /home/core/devel:/root/devel -e BROKER_LIST=`fleetctl list-machines -no-legend=true -fields=ip | sed 's/$/:9092/' | tr '\n' ','` -e NIMBUS_HOST=`etcdctl get /storm-nimbus` -e ZK=`fleetctl list-machines -no-legend=true -fields=ip | tr '\n' ','` endocode/devel-node:0.9.2 start-shell.sh bash```
 
 ###test kafka
 
@@ -159,7 +155,7 @@ endocode/devel-node:0.9.2 Docker container contains sample kafka-storm-cassandra
 * 
 
 ```
-docker run --rm -ti -v /home/core/devel:/root/devel -e JVMFLAGS="-Xmx64m -Xms64M" -e KAFKA_ADVERTISED_PORT=9092 -e HOST_IP=`hostname -i` -e ZK=`hostname -i` -e BROKER_LIST=`fleetctl list-machines -no-legend=true -fields=ip | sed 's/$/:9092/' | tr '\n' ','` -e HOST_NAME=`hostname -i` -e NIMBUS_HOST=`etcdctl get /storm-nimbus` -e ZK=`fleetctl list-machines -no-legend=true -fields=ip | tr '\n' ','` endocode/devel-node:0.9.2 bash
+docker run --rm -ti -v /home/core/devel:/root/devel -e BROKER_LIST=`fleetctl list-machines -no-legend=true -fields=ip | sed 's/$/:9092/' | tr '\n' ','` -e NIMBUS_HOST=`etcdctl get /storm-nimbus` -e ZK=`fleetctl list-machines -no-legend=true -fields=ip | tr '\n' ','` endocode/devel-node:0.9.2 start-shell.sh bash
 cd ~/kafka_cassandra_topology
 pyleus build
 pyleus submit -n $NIMBUS_HOST kafka-cassandra.jar

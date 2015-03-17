@@ -11,14 +11,14 @@ from cassandra.cluster import Cluster
 from cassandra.query import SimpleStatement
 from cassandra.query import BatchStatement
 
-cluster = Cluster(['coreos1','coreos2','coreos3'])
+cluster = Cluster(['172.17.8.101','172.17.8.102','172.17.8.103'])
 session = cluster.connect()
 
 class Consumer(threading.Thread):
     daemon = True
 
     def run(self):
-        client = KafkaClient("coreos1:9092")
+        client = KafkaClient("172.17.8.101:9092")
         consumer = SimpleConsumer(client, "test-group", "topic")
 
         batch_size = 300

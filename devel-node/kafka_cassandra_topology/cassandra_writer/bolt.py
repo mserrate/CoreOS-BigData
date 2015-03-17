@@ -9,7 +9,7 @@ log = logging.getLogger('cassandra_writer')
 from cassandra.cluster import Cluster
 from cassandra.query import SimpleStatement
 
-cluster = Cluster(['coreos1','coreos2','coreos3'])
+cluster = Cluster(['172.17.8.101','172.17.8.102','172.17.8.103'])
 session = cluster.connect()
 
 class CassandraWriter(SimpleBolt):
