@@ -25,4 +25,6 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN git clone https://github.com/Yelp/pyleus /root/pyleus
 ADD start-shell.sh /usr/bin/start-shell.sh
+RUN wget -q -O - https://github.com/coreos/fleet/releases/download/v0.9.1/fleet-v0.9.1-linux-amd64.tar.gz | tar --strip-components=1 -xzf - -C /usr/local/bin
+RUN wget -q -O - https://github.com/coreos/etcd/releases/download/v0.4.6/etcd-v0.4.6-linux-amd64.tar.gz | tar --strip-components=1 -xzf - -C /usr/local/bin
 CMD /usr/bin/start-shell.sh
