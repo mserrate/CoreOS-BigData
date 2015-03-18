@@ -45,7 +45,7 @@ fleetctl start storm-ui.service
 fleetctl start storm-supervisor@{1..3}.service
 ```
 
-##run development container inside coreos VM (storm, kafka, maven, scala, python, zookeeper, etc)
+##run development container inside coreos VM (storm, kafka, maven, scala, python, zookeeper, cassandra, etc)
 
 ```docker run --rm -ti -v /home/core/devel:/root/devel -e BROKER_LIST=`fleetctl list-machines -no-legend=true -fields=ip | sed 's/$/:9092/' | tr '\n' ','` -e NIMBUS_HOST=`etcdctl get /storm-nimbus` -e ZK=`fleetctl list-machines -no-legend=true -fields=ip | tr '\n' ','` endocode/devel-node:0.9.2 start-shell.sh bash```
 
@@ -55,7 +55,7 @@ Run these commands in devel-node container.
 
 Create topic
 
-```$KAFKA_HOME/bin/kafka-topics.sh --create --topic topic --partitions 4 --zookeeper $ZK --replication-factor 2```
+```$KAFKA_HOME/bin/kafka-topics.sh --create --topic topic --partitions 3 --zookeeper $ZK --replication-factor 2```
 
 Show topic info
 
@@ -84,22 +84,23 @@ Remove topic (valid only with KAFKA_DELETE_TOPIC_ENABLE=true environment)
 
 ```cqlsh 172.17.8.101```
 
-####basic cassandra queries
+####Create Cassandra tables
 
 Execute queries in ```cqlsh``` shell in devel-node:0.9.2 container.
 
+```echo "CREATE KEYSPACE testkeyspace WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 2 };" | cqlsh 172.17.8.101```
+```echo "CREATE TABLE IF NOT EXISTS testkeyspace.meter_data ( id uuid, Timestamp timestamp, P_1 float, P_2 float, P_3 float, Q_1 float, Q_2 float, Q_3 float, HARM list<int>, PRIMARY KEY (id, Timestamp) );" | cqlsh 172.17.8.101```
+
+You can view your Cassandra table's content with the following queries:
+
 ```
-SELECT * FROM system.schema_keyspaces;
-CREATE KEYSPACE testkeyspace WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 3 };
-CREATE TABLE IF NOT EXISTS testkeyspace.meter_data ( id uuid, Timestamp timestamp, P_1 float, P_2 float, P_3 float, Q_1 float, Q_2 float, Q_3 float, HARM list<int>, PRIMARY KEY (id, Timestamp) );
-INSERT INTO testkeyspace.meter_data (id, P_1, P_2, P_3, Q_1, Q_2, Q_3, HARM, timestamp) VALUES(f21d2312-ba1b-4d2c-8cfa-817bf783cbe6,1,2,3,4,5,6,[1,2],1425398075000);
 SELECT * FROM testkeyspace.meter_data;
+#Delete content from table
 TRUNCATE testkeyspace.meter_data;
-DESCRIBE KEYSPACE testkeyspace;
-copy testkeyspace.meter_data to stdout;
+SELECT COUNT(*) FROM testkeyspace.meter_data LIMIT 1000000;
 ```
 
-####storm topology
+####Storm topology
 
 We will use Pyleus (http://yelp.github.io/pyleus/) framework to manage Storm topologies in pure python. Unfortunately current Pyleus version (0.2.4) doesn't support latest Storm 0.9.3 (https://github.com/Yelp/pyleus/issues/86). That is why we use Storm 0.9.2 in this example.
 endocode/devel-node:0.9.2 Docker container contains sample kafka-storm-cassandra Storm topology. Follow these steps to build and submit Storm topology into Storm cluster:
@@ -116,7 +117,7 @@ pyleus submit -n $NIMBUS_HOST kafka-cassandra.jar
 ./single_python_producer.py
 ```
 
-It will run kafka-cassandra topology in Storm cluster and Kafka producer. All this data will be stored in Cassandra cluster using Storm topology. You can monitor Cassandra table in CQL shell:
+It will run kafka-cassandra topology in Storm cluster and Kafka producer. All this data will be stored in Cassandra cluster using Storm topology. You can monitor Cassandra table in CQL shell in another endocode/devel-node:0.9.2 container:
 
 ```
 cqlsh 172.17.8.101
