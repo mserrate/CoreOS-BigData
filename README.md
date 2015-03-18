@@ -1,93 +1,47 @@
 ##CoreOS instances
 
-CoreOS VM instances should be called:
-* coreos1
-* coreos2
-* coreos3
-
-Run empty VMs (4Gb RAM and 20Gb HDD for each) with CoreOS live ISO image (http://stable.release.core-os.net/amd64-usr/current/coreos_production_iso_image.iso), set temporarily root password through the VM console: ```sudo passwd```
-
-First run of ```coreos_install``` will create ```coreos.inc``` file at current directory. ```coreos.inc``` file will contain new ETCD discovery ID and public key path.
-
-Then run installation process:
-```
-./coreos_install %IP_ADDR_1% coreos1
-./coreos_install %IP_ADDR_2% coreos2
-./coreos_install %IP_ADDR_3% coreos3
-```
-
-By default ```coreos_install``` script uses ```~/.ssh/id_psa.pub``` public key. You can specify your own path (public key path should ends on ```*.pub``` to avoid private keys submit), i.e.:
+Install Vagrant (>= 1.6) and VirtualBox, then run ```vagrant up```
 
 ```
-./coreos_install %IP_ADDR_1% coreos1 ~/.ssh/my_special_key.pub
+git clone https://github.com/endocode/CoreOS-Kafka-Storm-Cassandra-cluster-demo
+cd CoreOS-Kafka-Storm-Cassandra-cluster-demo/coreos-vagrant
+vagrant up
 ```
 
-This path will be stored after first run of ```coreos_install``` inside the *coreos.inc* file.
-
-VMs will be halted after installation. Eject ISO from VM and start VMs.
-
-Install script will create ```hosts``` file at current directory with your CoreOS VMs' IP addresses and hostnames. You can update your systems' ```/etc/hosts``` with the following command: ```cat ./hosts | sudo tee -a /etc/hosts```
+Then login to your first Vagrant instance and submit fleet units:
+```
+vagrant ssh core-01
+fleetctl submit /tmp/fleet/*
+```
 
 ###fleet
-
-CoreOS installation script set specific metadata to each coreos host:
-* coreos1: metadata: zookeeperid=1
-* coreos2: metadata: zookeeperid=2
-* coreos3: metadata: zookeeperid=3
-
-This metadata will be used to run each zookeeper instance on corresponding coreos VM.
-
-####download and unpack fleet binaries
-
-* Linux binaries - https://github.com/coreos/fleet/releases/download/v0.9.1/fleet-v0.9.1-linux-amd64.tar.gz
-* Darwin binaries - https://github.com/coreos/fleet/releases/download/v0.9.1/fleet-v0.9.1-darwin-amd64.zip
-
-####fleet configuration on local machine
-
-Export the FLEETCTL_ENDPOINT environment:
-```export FLEETCTL_ENDPOINT=http://coreos1:4001```
-
-or create alias for fleetct:
-```alias fleetctl="%PATH_TO_FLEETCTL_BINARIES%/fleetctl --endpoint=http://coreos1:4001"```
-
-to run fleetctl on your local machine, not only on CoreOS VMs.
-
-####view containters' journals 
 
 fleetctl journal -f %service%@%instance%.service
 
 ##run zookeeper on each host
 
 ```
-fleetctl submit fleet/zookeeper@.service
 fleetctl start zookeeper@{1..3}.service
 ```
 
 ##run kafka on each host
 
 ```
-fleetctl submit fleet/kafka@.service
 fleetctl start kafka@{1..3}.service
 ```
 
 ##run cassandra on each host
 
 ```
-fleetctl submit fleet/cassandra@.service
 fleetctl start cassandra@{1..3}.service
 ```
 
 ##run storm cluster
 
 ```
-fleetctl submit fleet/storm-nimbus.service
 fleetctl start storm-nimbus.service
-# start storm UI
-fleetctl submit fleet/storm-ui.service
-# storm-ui will listen on http://coreos1:8080
+# storm-ui will listen on http://172.17.8.101:8080
 fleetctl start storm-ui.service
-# submit storm-supervisor template
-fleetctl submit fleet/storm-supervisor@.service
 fleetctl start storm-supervisor@{1..3}.service
 ```
 
@@ -123,17 +77,17 @@ Remove topic (valid only with KAFKA_DELETE_TOPIC_ENABLE=true environment)
 
 ####show cassandra cluster status
 
-```docker run --rm -ti --entrypoint=/bin/bash endocode/cassandra nodetool -hcoreos1 status```
+```docker run --rm -ti --entrypoint=/bin/bash endocode/cassandra nodetool -h172.17.8.101 status```
 
 ####cassandra cluster CLI
 
-```docker run --rm -ti --entrypoint=/bin/bash endocode/cassandra cassandra-cli -hcoreos1```
+```docker run --rm -ti --entrypoint=/bin/bash endocode/cassandra cassandra-cli -h172.17.8.101```
 
-```docker run --rm -ti --entrypoint=/bin/bash endocode/cassandra /usr/bin/cqlsh coreos1```
+```docker run --rm -ti --entrypoint=/bin/bash endocode/cassandra /usr/bin/cqlsh 172.17.8.101```
 
 ####basic cassandra queries
 
-Execute queries in ```docker run --rm -ti --entrypoint=/bin/bash endocode/cassandra /usr/bin/cqlsh coreos1``` docker container.
+Execute queries in ```docker run --rm -ti --entrypoint=/bin/bash endocode/cassandra /usr/bin/cqlsh 172.17.8.101``` docker container.
 
 ```
 SELECT * FROM system.schema_keyspaces;
@@ -159,52 +113,24 @@ docker run --rm -ti -v /home/core/devel:/root/devel -e BROKER_LIST=`fleetctl lis
 cd ~/kafka_cassandra_topology
 pyleus build
 pyleus submit -n $NIMBUS_HOST kafka-cassandra.jar
+#Run Kafka random data producer
+./single_python_producer.py
 ```
 
-It will run kafka-cassandra topology in Storm cluster. You can run ```single_python_producer.py``` python script to produce random test data into Kafka ```topic``` topic. All this data will be stored in Cassandra cluster.
-
-###fix invalid etcd configuration.
-
-UPD: Another solution is to use single-node etcd:
-* https://coreos.com/docs/cluster-management/setup/cluster-architectures/#easy-development/testing-cluster
-* https://gist.github.com/kelseyhightower/c36b9bac064a5e4356e4
-* https://www.youtube.com/watch?v=duUTk8xxGbU
-
-When it is necessary to reboot all CoreOS VMs in your cluster simultaneously, make sure you've made an etcd backup:
-
-https://github.com/coreos/etcd/blob/master/Documentation/admin_guide.md#disaster-recovery
-
-Otherwise you should create new etcd configuration (it will remove all stored data from your ETCD!):
-Please run these commands on first machine:
+It will run kafka-cassandra topology in Storm cluster and Kafka producer. All this data will be stored in Cassandra cluster using Storm topology. You can monitor Cassandra table in CQL shell:
 
 ```
-sudo -i -H
-systemctl stop etcd
-rm -rf /var/lib/etcd/
-sed -ri 's#(discovery:\s*).*#\1'`curl -s https://discovery.etcd.io/new`'#g' /var/lib/coreos-install/user_data
-grep discovery /var/lib/coreos-install/user_data
-```
-And these on the rest:
+docker run --rm -ti --entrypoint=/bin/bash endocode/cassandra /usr/bin/cqlsh 172.17.8.101
+Connected to cluster at 172.17.8.101:9160.
+[cqlsh 4.1.1 | Cassandra 2.0.12 | CQL spec 3.1.1 | Thrift protocol 19.39.0]
+Use HELP for help.
+cqlsh> SELECT COUNT(*) FROM testkeyspace.meter_data LIMIT 1000000;
 
-```
-sudo -i -H
-export NEW_DISCOVERY_URL="https://discovery.etcd.io/b6e4ab9dedf211f21934825472ae6c6e"
-systemctl stop etcd
-rm -rf /var/lib/etcd/
-sed -ri "s#(discovery:\s*).*#\1$NEW_DISCOVERY_URL#g" /var/lib/coreos-install/user_data
-```
+ count
+-------
+  1175
 
-Then reboot all machines.
+(1 rows)
 
-###btrfs insufficient space
-
-https://coreos.com/docs/cluster-management/debugging/btrfs-troubleshooting/
-
-###Fix invalid fleet units
-
-```
-rm /run/fleet/units/%invalid_unit%
-rm /run/systemd/system/%invalid_unit%
-systemctl restart fleet
-systemctl daemon-reload
+cqlsh>
 ```
