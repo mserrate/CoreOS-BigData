@@ -1,10 +1,5 @@
 #!/bin/bash
 
-usage(){
-	echo "Usage: $0 %IP_ADDR% [%PUBKEY%]"
-	exit 1
-}
-
 COREOS_CONF="./coreos.inc"
 
 if [[ -f $COREOS_CONF && -r $COREOS_CONF ]]; then
