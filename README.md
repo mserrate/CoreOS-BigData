@@ -77,17 +77,16 @@ Remove topic (valid only with KAFKA_DELETE_TOPIC_ENABLE=true environment)
 
 ####show cassandra cluster status
 
-```docker run --rm -ti --entrypoint=/bin/bash endocode/cassandra nodetool -h172.17.8.101 status```
+```nodetool -h172.17.8.101 status```
 
 ####cassandra cluster CLI
 
-```docker run --rm -ti --entrypoint=/bin/bash endocode/cassandra cassandra-cli -h172.17.8.101```
 
-```docker run --rm -ti --entrypoint=/bin/bash endocode/cassandra /usr/bin/cqlsh 172.17.8.101```
+```cqlsh 172.17.8.101```
 
 ####basic cassandra queries
 
-Execute queries in ```docker run --rm -ti --entrypoint=/bin/bash endocode/cassandra /usr/bin/cqlsh 172.17.8.101``` docker container.
+Execute queries in ```cqlsh``` shell in devel-node:0.9.2 container.
 
 ```
 SELECT * FROM system.schema_keyspaces;
@@ -120,7 +119,7 @@ pyleus submit -n $NIMBUS_HOST kafka-cassandra.jar
 It will run kafka-cassandra topology in Storm cluster and Kafka producer. All this data will be stored in Cassandra cluster using Storm topology. You can monitor Cassandra table in CQL shell:
 
 ```
-docker run --rm -ti --entrypoint=/bin/bash endocode/cassandra /usr/bin/cqlsh 172.17.8.101
+cqlsh 172.17.8.101
 Connected to cluster at 172.17.8.101:9160.
 [cqlsh 4.1.1 | Cassandra 2.0.12 | CQL spec 3.1.1 | Thrift protocol 19.39.0]
 Use HELP for help.
