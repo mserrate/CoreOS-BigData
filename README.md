@@ -8,78 +8,76 @@ cd CoreOS-Kafka-Storm-Cassandra-cluster-demo/coreos-vagrant
 vagrant up
 ```
 
+Vagrant will create three CoreOS VMs with the following IPs: 172.17.8.101, 172.17.8.102, 172.17.8.103
+
 Then login to your first Vagrant instance and submit fleet units:
 ```
 vagrant ssh core-01
 fleetctl submit /tmp/fleet/*
 ```
 
-###fleet
-
-fleetctl journal -f %service%@%instance%.service
-
-##run zookeeper on each host
+##Run Zookeeper cluster
 
 ```
 fleetctl start zookeeper@{1..3}.service
 ```
 
-##run kafka on each host
+##Run Kafka cluster
 
 ```
 fleetctl start kafka@{1..3}.service
 ```
 
-##run cassandra on each host
+##Run Cassandra luster
 
 ```
 fleetctl start cassandra@{1..3}.service
 ```
 
-##run storm cluster
+##Run Storm cluster
 
 ```
 fleetctl start storm-nimbus.service
-# storm-ui will listen on http://172.17.8.101:8080
+# storm-ui (not required) will listen on http://172.17.8.101:8080
 fleetctl start storm-ui.service
 fleetctl start storm-supervisor@{1..3}.service
 ```
 
-##run development container inside coreos VM (storm, kafka, maven, scala, python, zookeeper, cassandra, etc)
+##Run development container inside CoreOS VM (storm, kafka, maven, scala, python, zookeeper, cassandra, etc)
 
 ```docker run --rm -ti -v /home/core/devel:/root/devel -e BROKER_LIST=`fleetctl list-machines -no-legend=true -fields=ip | sed 's/$/:9092/' | tr '\n' ','` -e NIMBUS_HOST=`etcdctl get /storm-nimbus` -e ZK=`fleetctl list-machines -no-legend=true -fields=ip | tr '\n' ','` endocode/devel-node:0.9.2 start-shell.sh bash```
 
-###test kafka
+###Test Kafka cluster
 
-Run these commands in devel-node container.
+Run these commands in devel-node container to test your Kafka cluster.
 
 Create topic
 
-```$KAFKA_HOME/bin/kafka-topics.sh --create --topic topic --partitions 3 --zookeeper $ZK --replication-factor 2```
+```$KAFKA_HOME/bin/kafka-topics.sh --create --topic test --partitions 3 --zookeeper $ZK --replication-factor 2```
 
 Show topic info
 
-```$KAFKA_HOME/bin/kafka-topics.sh --describe --topic topic --zookeeper $ZK```
+```$KAFKA_HOME/bin/kafka-topics.sh --describe --topic test --zookeeper $ZK```
 
 Send some data to topic
 
-```$KAFKA_HOME/bin/kafka-console-producer.sh --topic=topic --broker-list="$BROKER_LIST"```
+```$KAFKA_HOME/bin/kafka-console-producer.sh --topic test --broker-list="$BROKER_LIST"```
 
 Get some data from topic
 
-```$KAFKA_HOME/bin/kafka-console-consumer.sh --zookeeper $ZK --topic topic --from-beginning```
+```$KAFKA_HOME/bin/kafka-console-consumer.sh --zookeeper $ZK --topic test --from-beginning```
 
 Remove topic (valid only with KAFKA_DELETE_TOPIC_ENABLE=true environment)
 
-```$KAFKA_HOME/bin/kafka-topics.sh --zookeeper $ZK --delete --topic topic```
+```$KAFKA_HOME/bin/kafka-topics.sh --zookeeper $ZK --delete --topic test```
 
-###cassandra
+###Cassandra
 
-####show cassandra cluster status
+####Show Cassandra cluster status
 
 ```nodetool -h172.17.8.101 status```
 
-####cassandra cluster CLI
+####Cassandra cluster CLI
 
 
 ```cqlsh 172.17.8.101```
