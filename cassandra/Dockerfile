@@ -1,5 +1,5 @@
 FROM ubuntu:trusty
-# based on wurstmeister
+# based on Spotify's dockerfile - https://github.com/spotify/docker-cassandra/blob/master/cassandra-base/Dockerfile
 MAINTAINER Anton Khramov <anton@endocode.com>
 
 RUN /bin/echo -e "deb http://archive.ubuntu.com/ubuntu/ trusty multiverse\ndeb http://archive.ubuntu.com/ubuntu/ trusty-updates multiverse\ndeb http://security.ubuntu.com/ubuntu trusty-security multiverse" | tee -a /etc/apt/sources.list
