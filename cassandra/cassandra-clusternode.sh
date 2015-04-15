@@ -33,6 +33,17 @@ if [ -n "$CASSANDRA_SSL_STORAGE_PORT" ]; then
 	sed -i -e "s/ssl_storage_port: .*/ssl_storage_port: $CASSANDRA_SSL_STORAGE_PORT/g" $CASSANDRA_CONFIG/cassandra.yaml
 fi
 
+if [ -n "$CASSANDRA_LOCAL_JMX" ]; then
+	sed -i -e "s/\(^LOCAL_JMX=\).*/\1$CASSANDRA_LOCAL_JMX/g" $CASSANDRA_CONFIG/cassandra-env.sh
+	PASSWORD=`openssl rand -base64 6`
+	echo -e "\e[92mJMX credentials:\e[0m\n\t\e[92mUsername:\e[0m cassandra\n\t\e[92mPassword:\e[0m $PASSWORD"
+	echo -e "monitorRole QED\ncontrolRole R&D\ncassandra $PASSWORD" > /etc/cassandra/jmxremote.password
+#	echo -e "monitorRole   readonly\\ncassandra     readwrite\\ncontrolRole   readwrite \\\\\\n              create javax.management.monitor.*,javax.management.timer.* \\\\\\n              unregister" >> /usr/lib/jvm/jre-7-oracle-x64/lib/management/jmxremote.access
+	echo "cassandra     readwrite" >> /usr/lib/jvm/jre-7-oracle-x64/lib/management/jmxremote.access
+	chown cassandra:cassandra /etc/cassandra/jmxremote.password
+	chmod 400 /etc/cassandra/jmxremote.password
+fi
+
 ## With virtual nodes disabled, we need to manually specify the token
 #if [ -z "$CASSANDRA_TOKEN" ]; then
 #	echo "Missing initial token for Cassandra"
