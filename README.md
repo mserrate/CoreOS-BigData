@@ -7,16 +7,16 @@ eval $(ssh-agent)
 add the private key to the agent:
 ssh-add
 
-#if it's vagrant:
+if it's vagrant:
 ssh-add ~/.vagrant.d/insecure_private_key
 vagrant ssh core-01 -- -A
 
 
 To shell a session on a running container:
-#in this case container cassandra-1
-#first we get the PID of the container
+in this case container cassandra-1
+first we get the PID of the container
 PID=$(docker inspect --format {{.State.Pid}} cassandra-1)
-#then, open the shell session
+then, open the shell session
 sudo nsenter -t $PID -m -u -i -n -p
 
 
