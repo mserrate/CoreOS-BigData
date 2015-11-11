@@ -1,3 +1,7 @@
+*That's basically a copy of: https://github.com/endocode/CoreOS-Kafka-Storm-Cassandra-cluster-demo adapted to my needs*
+
+
+
 ##CoreOS instances
 
 Install Vagrant (>= 1.6) and VirtualBox, then run
