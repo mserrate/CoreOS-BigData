@@ -1,5 +1,24 @@
 *That's basically a copy of: https://github.com/endocode/CoreOS-Kafka-Storm-Cassandra-cluster-demo adapted to my needs*
 
+Troubleshooting:
+To be able to use fleetctl ssh 
+start user agent by typng:
+eval $(ssh-agent)
+add the private key to the agent:
+ssh-add
+
+if it's vagrant:
+ssh-add ~/.vagrant.d/insecure_private_key
+vagrant ssh core-01 -- -A
+
+
+To shell a session on a running container:
+in this case container cassandra-1
+first we get the PID of the container
+PID=$(docker inspect --format {{.State.Pid}} cassandra-1)
+then, open the shell session
+sudo nsenter -t $PID -m -u -i -n -p
+
 
 
 ##CoreOS instances
