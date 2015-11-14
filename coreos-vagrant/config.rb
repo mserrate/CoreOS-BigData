@@ -1,21 +1,37 @@
-$new_discovery_url='https://discovery.etcd.io/new'
+# Size of the CoreOS cluster created by Vagrant
+$num_instances=3
 
-# To automatically replace the discovery token on 'vagrant up', uncomment
-# the lines below:
-#
+# Used to fetch a new discovery token for a cluster of size $num_instances
+$new_discovery_url="https://discovery.etcd.io/new?size=#{$num_instances}"
+
+# Automatically replace the discovery token on 'vagrant up'
+
 if File.exists?('user-data') && ARGV[0].eql?('up')
   require 'open-uri'
   require 'yaml'
- 
+
   token = open($new_discovery_url).read
- 
+
   data = YAML.load(IO.readlines('user-data')[1..-1].join)
-  data['coreos']['etcd']['discovery'] = token
- 
+
+  if data.key? 'coreos' and data['coreos'].key? 'etcd'
+    data['coreos']['etcd']['discovery'] = token
+  end
+
+  if data.key? 'coreos' and data['coreos'].key? 'etcd2'
+    data['coreos']['etcd2']['discovery'] = token
+  end
+
+  # Fix for YAML.load() converting reboot-strategy from 'off' to `false`
+  if data.key? 'coreos' and data['coreos'].key? 'update' and data['coreos']['update'].key? 'reboot-strategy'
+    if data['coreos']['update']['reboot-strategy'] == false
+      data['coreos']['update']['reboot-strategy'] = 'off'
+    end
+  end
+
   yaml = YAML.dump(data)
   File.open('user-data', 'w') { |file| file.write("#cloud-config\n\n#{yaml}") }
 end
-
 
 #
 # coreos-vagrant is configured through a series of configuration
@@ -24,13 +40,17 @@ end
 # uncomment the necessary lines, leaving the $, and replace everything
 # after the equals sign..
 
-# Size of the CoreOS cluster created by Vagrant
-$num_instances=3
-
 # Change basename of the VM
 # The default value is "core", which results in VMs named starting with
 # "core-01" through to "core-${num_instances}".
 #$instance_name_prefix="core"
+
+# Change the version of CoreOS to be installed
+# To deploy a specific version, simply set $image_version accordingly.
+# For example, to deploy version 709.0.0, set $image_version="709.0.0".
+# The default value is "current", which points to the current version
+# of the selected channel
+#$image_version = "current"
 
 # Official CoreOS channel from which updates should be downloaded
 $update_channel='stable'
