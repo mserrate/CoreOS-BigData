@@ -1,5 +1,5 @@
-FROM endocode/storm:0.9.2
-MAINTAINER Anton Khramov <anton@endocode.com>
+FROM mserrate/storm:0.10.0
+MAINTAINER mserrate
 
 # worker 1 port
 EXPOSE 6700
