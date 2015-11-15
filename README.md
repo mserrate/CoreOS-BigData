@@ -2,23 +2,35 @@
 
 Troubleshooting:
 To be able to use fleetctl ssh 
-start user agent by typng:
+```
+#start user agent by typng:
 eval $(ssh-agent)
-add the private key to the agent:
+#add the private key to the agent:
 ssh-add
 
-if it's vagrant:
+#if it's vagrant:
 ssh-add ~/.vagrant.d/insecure_private_key
 vagrant ssh core-01 -- -A
-
+```
 
 To shell a session on a running container:
-in this case container cassandra-1
-first we get the PID of the container
+```
+#in this case container cassandra-1
+#first we get the PID of the container
 PID=$(docker inspect --format {{.State.Pid}} cassandra-1)
-then, open the shell session
+#then, open the shell session
 sudo nsenter -t $PID -m -u -i -n -p
-
+```
+To not type Vagrant password each time for shared folders:
+```
+#On MacOS
+sudo visudo
+#Place the following at the bottom of the file
+Cmnd_Alias VAGRANT_EXPORTS_ADD = /usr/bin/tee -a /etc/exports
+Cmnd_Alias VAGRANT_NFSD = /sbin/nfsd restart
+Cmnd_Alias VAGRANT_EXPORTS_REMOVE = /usr/bin/sed -E -e /*/ d -ibak /etc/exports
+%admin ALL=(root) NOPASSWD: VAGRANT_EXPORTS_ADD, VAGRANT_NFSD, VAGRANT_EXPORTS_REMOVE
+```
 
 
 ##CoreOS instances
