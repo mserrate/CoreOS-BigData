@@ -4,8 +4,8 @@ MAINTAINER mserrate
 
 RUN apt-get update && apt-get dist-upgrade -y
 RUN apt-get install -y tar openjdk-7-jre-headless wget
-# python topology requirements and supervisord
-RUN apt-get install -y python-setuptools python-virtualenv supervisor
+# supervisord
+RUN apt-get install -y supervisor
 
 # cleanup image
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
