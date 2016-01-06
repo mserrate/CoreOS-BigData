@@ -1,25 +1,35 @@
 FROM ubuntu:trusty
 # based on Spotify's dockerfile - https://github.com/spotify/docker-cassandra/blob/master/cassandra-base/Dockerfile
-MAINTAINER Anton Khramov <anton@endocode.com>
+# and endocode
+MAINTAINER mserrate
 
-RUN /bin/echo -e "deb http://archive.ubuntu.com/ubuntu/ trusty multiverse\ndeb http://archive.ubuntu.com/ubuntu/ trusty-updates multiverse\ndeb http://security.ubuntu.com/ubuntu trusty-security multiverse" | tee -a /etc/apt/sources.list
-RUN apt-get update && apt-get dist-upgrade -y
-RUN apt-get install -y expect java-package
-RUN curl -j -L -H 'Cookie: oraclelicense=accept-securebackup-cookie' https://edelivery.oracle.com/otn-pub/java/jdk/7u79-b15/jre-7u79-linux-x64.tar.gz -o /tmp/jre-7u79-linux-x64.tar.gz
-ADD expect /tmp/expect
-RUN /tmp/expect
+ENV DEBIAN_FRONTEND noninteractive
+#RUN /bin/echo -e "deb http://archive.ubuntu.com/ubuntu/ trusty multiverse\ndeb http://archive.ubuntu.com/ubuntu/ trusty-updates multiverse\ndeb http://security.ubuntu.com/ubuntu trusty-security multiverse" | tee -a /etc/apt/sources.list
+#RUN apt-get update && apt-get dist-upgrade -y
+RUN apt-get install -y software-properties-common
+RUN apt-get install -y curl 
+# Install Java.
+RUN \
+  echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
+  add-apt-repository -y ppa:webupd8team/java && \
+  apt-get update && \
+  apt-get install -y oracle-java7-installer && \
+  rm -rf /var/lib/apt/lists/* && \
+  rm -rf /var/cache/oracle-jdk7-installer
 
 ADD cassandra_repo_key /tmp/cassandra_repo_key
 RUN apt-key add /tmp/cassandra_repo_key
 RUN echo "deb http://debian.datastax.com/community stable main" | tee -a /etc/apt/sources.list.d/cassandra.sources.list
+RUN curl -L https://debian.datastax.com/debian/repo_key | sudo apt-key add -
+
 RUN apt-get update
-RUN dpkg -i /tmp/oracle-java7-jre_7u79_amd64.deb || apt-get install -fy
+#RUN dpkg -i /tmp/oracle-java7-jre_7u79_amd64.deb || apt-get install -fy
 
 # Workaround for https://github.com/docker/docker/issues/6345
 RUN ln -s -f /bin/true /usr/bin/chfn
 
-# Install Cassandra 2.0.14
-RUN apt-get install -y cassandra=2.0.14 dsc20=2.0.14-1
+# Install Cassandra 2.2.4
+RUN apt-get install -y cassandra=2.2.4 dsc22=2.2.4-1
 
 # cleanup image
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

@@ -6,7 +6,7 @@ ENV KAFKA_VERSION="0.8.2.2" SCALA_VERSION="2.10"
 
 RUN wget -q -O - https://debian.datastax.com/debian/repo_key | apt-key add -
 RUN echo "deb http://debian.datastax.com/community stable main" | tee -a /etc/apt/sources.list.d/cassandra.sources.list
-RUN apt-get update && apt-get install cassandra=2.0.12 dsc20=2.0.12-1 maven openjdk-7-jdk leiningen git devscripts python-stdeb python-all-dev build-essential python-dev libev4 libev-dev python-blist python-twisted python-yaml thrift-compiler scala vim screen tcpdump telnet zookeeper thrift-compiler -y
+RUN apt-get update && apt-get install cassandra=2.2.4 dsc22=2.2.4-1 maven openjdk-7-jdk leiningen git devscripts python-stdeb python-all-dev build-essential python-dev libev4 libev-dev python-blist python-twisted python-yaml thrift-compiler scala vim screen tcpdump telnet zookeeper thrift-compiler -y
 
 RUN wget -q http://wwwftp.ciril.fr/pub/apache/kafka/${KAFKA_VERSION}/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz -O /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz
 RUN tar xfz /tmp/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz -C /opt

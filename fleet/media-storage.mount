@@ -1,0 +1,7 @@
+[Mount]
+What=172.17.8.1:/Users/mserrate/Documents/Dev/BigData/CoreOS-BigData/coreos-vagrant/share
+Where=/media/storage
+Type=nfs
+
+[X-Fleet]
+Global=true

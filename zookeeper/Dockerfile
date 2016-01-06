@@ -1,8 +1,9 @@
 FROM ubuntu:trusty
-MAINTAINER Anton Khramov <anton@endocode.com>
+# based on endocode
+MAINTAINER mserrate
 
 RUN apt-get update && apt-get dist-upgrade -y
-RUN apt-get install -y zookeeper
+RUN apt-get update &&  apt-get install -y zookeeper
 
 # cleanup image
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

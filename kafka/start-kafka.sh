@@ -3,8 +3,11 @@
 if [[ -z "$KAFKA_BROKER_ID" ]]; then
     export KAFKA_BROKER_ID=$KAFKA_ADVERTISED_PORT
 fi
+if [[ -z "$MEDIA_STORAGE" ]]; then
+    export MEDIA_STORAGE="/kafka"
+fi
 if [[ -z "$KAFKA_LOG_DIRS" ]]; then
-    export KAFKA_LOG_DIRS="/kafka/kafka-logs-$KAFKA_BROKER_ID"
+    export KAFKA_LOG_DIRS="$MEDIA_STORAGE/kafka-logs-$KAFKA_BROKER_ID"
 fi
 if [[ -n "$KAFKA_HEAP_OPTS" ]]; then
     sed -r -i "s/(export KAFKA_HEAP_OPTS)=\"(.*)\"/\1=\"$KAFKA_HEAP_OPTS\"/g" $KAFKA_HOME/bin/kafka-server-start.sh
