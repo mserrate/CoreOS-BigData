@@ -6,12 +6,12 @@ After=media-storage.mount
 Requires=media-storage.mount
 
 [Service]
-Environment=MEDIA_STORAGE=/media
+Environment=MEDIA_STORAGE=/var/zookeeper
 ExecStartPre=/usr/bin/mkdir -p /media/storage/%p
 ExecStartPre=-/usr/bin/docker kill %p-%i
 ExecStartPre=-/usr/bin/docker rm %p-%i
 ExecStartPre=/usr/bin/docker pull mserrate/%p
-ExecStart=/usr/bin/bash -c "ZK_SERVERS=\"$(/usr/bin/fleetctl list-machines -fields='ip,metadata' -no-legend=true | awk -F'[=\t]' '{print \"server.\"$3\"=\"$1\":2888:3888\"}' | tr '\n' ' ')\" && exec /usr/bin/docker run --name %p-%i -e JVMFLAGS='-Xmx64m -Xms64M' -e ZK_SERVERS=\"$ZK_SERVERS\" -e ZK_ID=%i -e MEDIA_STORAGE=${MEDIA_STORAGE} --hostname %H --publish 2181:2181 --publish 2888:2888 --publish 3888:3888 -v /media/storage/%p:${MEDIA_STORAGE} mserrate/%p"
+ExecStart=/usr/bin/bash -c "ZK_SERVERS=\"$(/usr/bin/fleetctl list-machines -fields='ip,metadata' -no-legend=true | awk -F'[=\t]' '{print \"server.\"$3\"=\"$1\":2888:3888\"}' | tr '\n' ' ')\" && exec /usr/bin/docker run --name %p-%i -e JVMFLAGS='-Xmx64m -Xms64M' -e ZK_SERVERS=\"$ZK_SERVERS\" -e ZK_ID=%i --hostname %H --publish 2181:2181 --publish 2888:2888 --publish 3888:3888 -v /media/storage/%p:${MEDIA_STORAGE} mserrate/%p"
 ExecStop=/usr/bin/docker stop %p-%i
 TimeoutStartSec=900s
 
